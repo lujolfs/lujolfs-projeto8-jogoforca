@@ -1,5 +1,6 @@
 import { useState } from "react"
 import palavras from "./palavras";
+import "./styles.css";
 
 const alfanumerico = Array.from(Array(26)).map((e, i) => i + 65);
 const alfabeto = alfanumerico.map((x) => String.fromCharCode(x));
@@ -17,7 +18,6 @@ export default function App() {
     const [botaoDesliga, setBotaoDesliga] = useState(true);
     const [disableList, setDisableList] = useState(alfabetoDisabled);
     const [chute, setChute] = useState()
-    const [letraTentativa,setLetraTentativa] = useState("_");
 
     function defineResposta() {
         const palavraOriginal = palavras[Math.floor(Math.random() * palavras.length)]
@@ -36,6 +36,7 @@ export default function App() {
         setBotaoDesliga(false);
         setDisableList({});
         setChute("");
+        console.log(palavraNormalizadaArray);
     }
 
     function compararLetra(letra) {
@@ -46,6 +47,7 @@ export default function App() {
             letraCerta.push(letra);
             setLetraCerta(letraCerta);
             console.log(letraCerta);
+            /* revelaLetra(letra); */
         } else {
             letraErrada.push(letra);
             setLetraErrada(letraErrada);
@@ -104,6 +106,24 @@ export default function App() {
         console.log(chuteLetraUnica);
     }
 
+    function incluiLetra(letra) {
+        const letraRender = letra.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+        if (letraCerta.includes(letraRender)) {
+            return letra;
+        } else {
+            return "_";
+            
+        }
+    }
+
+/*     function revelaLetra(letra) {
+        const letraRevelada = palavraLetraRepetida.filter(letra, index);
+        consonle.log(letraRevelada);
+
+    } */
+
+
+
 
     return (
         <>
@@ -124,12 +144,7 @@ export default function App() {
                             className="dicasProper"
                             key={index}
                         >
-                            <h1>{letraTentativa}</h1>
-                        </div>
-                        <div
-                            className="acertoLetra hidden"
-                            key={`l+${index}`}>
-                            <h1>{letra}</h1>
+                            <h1>{incluiLetra(letra)}</h1>
                         </div>
                     </div>
                 ))}
