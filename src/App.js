@@ -57,20 +57,14 @@ export default function App() {
     }
 
     function compararLetraChute(chuteInput) {
-        letrasClicadas.push(...chuteInput);
-        setLetrasClicadas(letrasClicadas);
-        setDisableList(alfabetoDisabled);
-        verificaAcertoChute();
-    }
-
-    function verificaAcertoChute() {
-        if (JSON.stringify(letrasClicadas) === JSON.stringify(letrasNormalizadas)) {
+        if (JSON.stringify(chuteInput) === JSON.stringify(letrasNormalizadas)) {
             venceuJogo();
         } else {
             perdeuJogo();
         }
+        setDisableList(alfabetoDisabled);
     }
-
+    
     function verificaAcerto() {
         if (letraCerta.length === letrasNormalizadas.length) {
             venceuJogo();
@@ -93,7 +87,6 @@ export default function App() {
     }
 
     function chuteTeste() {
-        setLetrasClicadas([]);
         setBotaoDesliga(!botaoDesliga);
         setDisableList(alfabetoDisabled);
         const chuteMaiusculo = chute.toUpperCase();
