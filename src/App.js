@@ -2,30 +2,47 @@ import { useState } from "react"
 import palavras from "./palavras";
 
 const alfanumerico = Array.from(Array(26)).map((e, i) => i + 65);
-const alfabeto = alfanumerico.map((x) => String.fromCharCode(x + 32));
+const alfabeto = alfanumerico.map((x) => String.fromCharCode(x));
+const alfabetoDisabled = {A: true, B: true, C: true, D: true, E: true, F: true, G: true, H: true, I: true, J: true, K: true, L: true, M: true, N: true, O: true, P: true, Q: true, R: true, S: true, T: true, U: true, V: true, W: true, X: true, Y: true, Z:true};
 
 
 export default function App() {
 
     const [letrasDica, setLetrasDica] = useState([]);
+    const [letrasNormalizadas, setLetrasNormalizadas] = useState([]);
     const [letrasClicadas, setLetrasClicadas] = useState([]);
     const [letraCerta, setLetraCerta] = useState([]);
     const [letraErrada, setLetraErrada] = useState([]);
     const [contaForca, setContaForca] = useState(0);
+    const [botaoDesliga, setBotaoDesliga] = useState(true);
+    const [disableList, setDisableList] = useState(alfabetoDisabled);
+    const [chute, setChute] = useState()
+    const [letraTentativa,setLetraTentativa] = useState("_");
 
     function defineResposta() {
-        const palavra = palavras[Math.floor(Math.random() * palavras.length)]
+        const palavraOriginal = palavras[Math.floor(Math.random() * palavras.length)]
+        const palavra = palavraOriginal.toUpperCase();
         const palavraArray = [...palavra]
+        const palavraNormalizada = palavra.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+        const palavraNormalizadaArray = [...palavraNormalizada];
+        const palavraLetraRepetida = new Set(palavraNormalizadaArray);
+        const palavraLetraUnica = Array.from(palavraLetraRepetida);
+        setLetrasNormalizadas(palavraLetraUnica);
         setLetrasDica(palavraArray);
         setLetrasClicadas([]);
+        setLetraCerta([]);
+        setLetraErrada([]);
         setContaForca(0);
-        console.log(palavraArray);
+        setBotaoDesliga(false);
+        setDisableList({});
+        setChute("");
     }
 
     function compararLetra(letra) {
         letrasClicadas.push(letra);
         setLetrasClicadas(letrasClicadas);
-        if (letrasDica.includes(letra)) {
+        setDisableList(prev => ({ ...prev, [letra]: true}))
+        if (letrasNormalizadas.includes(letra)) {
             letraCerta.push(letra);
             setLetraCerta(letraCerta);
             console.log(letraCerta);
@@ -33,25 +50,65 @@ export default function App() {
             letraErrada.push(letra);
             setLetraErrada(letraErrada);
             setContaForca(contaForca + 1);
-            console.log(contaForca);
-            console.log(letraErrada.length);
+            console.log("Errouuuuu!!");
         }
         verificaAcerto();
     }
 
-    function verificaAcerto() {
-        console.log(letrasClicadas);
-        (letraCerta.length === letrasDica.length) ? console.log("Acertou!!") : console.log("Ainda não.");
-        if (letraErrada.length === 6) {
-            console.log("Perdeu")
+    function compararLetraChute(chuteInput) {
+        letrasClicadas.push(...chuteInput);
+        setLetrasClicadas(letrasClicadas);
+        setDisableList(alfabetoDisabled);
+        verificaAcertoChute();
+    }
+
+    function verificaAcertoChute() {
+        if (JSON.stringify(letrasClicadas) === JSON.stringify(letrasNormalizadas)) {
+            venceuJogo();
+        } else {
+            perdeuJogo();
         }
     }
+
+    function verificaAcerto() {
+        console.log(letrasClicadas);
+        if (letraCerta.length === letrasNormalizadas.length) {
+            venceuJogo();
+        } else if (letraErrada.length === 6) {
+            perdeuJogo();
+        }
+    }
+
+    function venceuJogo() {
+        alert("Parabéns, você venceu!");
+        setDisableList(alfabetoDisabled);
+    }
+
+    function perdeuJogo() {
+        alert("Não foi dessa vez! Tente de novo!");
+        setDisableList(alfabetoDisabled);
+        setContaForca(6);
+    }
+
+    function chuteTeste() {
+        console.log(chute);
+        setBotaoDesliga(!botaoDesliga);
+        setDisableList(alfabetoDisabled);
+        const chuteMaiusculo = chute.toUpperCase();
+        const chuteNormalizado = chuteMaiusculo.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+        const chuteNormalizadoArray = [...chuteNormalizado];
+        const chuteLetraRepetida = new Set(chuteNormalizadoArray);
+        const chuteLetraUnica = Array.from(chuteLetraRepetida);
+        setLetrasClicadas(chuteLetraUnica);
+        compararLetraChute(chuteLetraUnica);
+        console.log(chuteLetraUnica);
+    }
+
 
     return (
         <>
             <>
-                <h1>Imagem da Forca</h1>
-                <img src={`assets/forca${contaForca}.png`} alt={`Você cometeu ${contaForca} erros.`}/>
+                <img src={`assets/forca${contaForca}.png`} alt={`Você cometeu ${contaForca} erros.`} />
             </>
             <>
                 <div className="botao">
@@ -67,22 +124,40 @@ export default function App() {
                             className="dicasProper"
                             key={index}
                         >
-                            <h1>_</h1>
+                            <h1>{letraTentativa}</h1>
                         </div>
-                        {/*                         <div
+                        <div
                             className="acertoLetra hidden"
-                            key="'l'+{index}">
+                            key={`l+${index}`}>
                             <h1>{letra}</h1>
-                        </div> */}
+                        </div>
                     </div>
                 ))}
             </>
             <>
                 <div className="botao-letra">
                     {alfabeto.map((a) => (
-                        <button type="button" onClick={() => compararLetra(a)} key={a}>{a}</button>
+                        <button
+                            disabled={disableList[a]}
+                            type="button"
+                            onClick={() => compararLetra(a)}
+                            key={a}>
+                            {a}
+                        </button>
                     ))
                     }
+                </div>
+            </>
+            <>
+                <div className="input-direto">
+                    <h1>Eu já sei a palavra!</h1><br />
+                    <input
+                        type="text"
+                        disabled={botaoDesliga ? "true" : ""}
+                        name="chute"
+                        onChange={event => setChute(event.target.value)}
+                    />
+                    <button disabled={botaoDesliga ? "true" : ""} onClick={() => chuteTeste()}>Chutar</button>
                 </div>
             </>
         </>
