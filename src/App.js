@@ -256,6 +256,7 @@ background-color:#e1ebf4;
 cursor: pointer;
 &:disabled {
     cursor: not-allowed;
+    background-color: grey;
 }
 `
 
@@ -273,6 +274,7 @@ display: flex;
 const DigitaChute = styled.input`
 &:disabled {
     cursor: not-allowed;
+    background-color: grey;
 }
 `
 
@@ -286,5 +288,6 @@ width: 80px;
 cursor: pointer;
 &:disabled {
     cursor: not-allowed;
+    background-color: grey;
 }
 `
