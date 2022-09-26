@@ -19,6 +19,7 @@ export default function App() {
     const [botaoDesliga, setBotaoDesliga] = useState(true);
     const [disableList, setDisableList] = useState(alfabetoDisabled);
     const [chute, setChute] = useState()
+    const [gameOver, setGameOver] = useState(false)
 
     function defineResposta() {
         const palavraOriginal = palavras[Math.floor(Math.random() * palavras.length)]
@@ -80,12 +81,14 @@ export default function App() {
     function venceuJogo() {
         alert("Parabéns, você venceu!");
         setDisableList(alfabetoDisabled);
+        setGameOver(true);
     }
 
     function perdeuJogo() {
         setContaForca(6);
         alert("Não foi dessa vez! Tente de novo!");
         setDisableList(alfabetoDisabled);
+        setGameOver(true);
     }
 
     function chuteTeste() {
@@ -126,7 +129,7 @@ export default function App() {
             </Inicio>
 
             <Dicas>
-                {letrasDica.map((letra, index) => (
+                {gameOver === false ? letrasDica.map((letra, index) => (
                     <div className="dicasCaixa" key={index}>
                         <div
                             className="dicasProper"
@@ -135,6 +138,16 @@ export default function App() {
                         >
                             <h1>{incluiLetra(letra)}</h1>
                         </div>
+                    </div>
+                )) : letrasDica.map((letra, index) => (
+                    <div className="dicasCaixa" key={index}>
+                        <div
+                            className="dicasProper"
+                            key={index}
+                            data-identifier="word"
+                            >
+                                <h1>{letra}</h1>
+                            </div>
                     </div>
                 ))}
             </Dicas>
