@@ -38,6 +38,7 @@ export default function App() {
         setBotaoDesliga(false);
         setDisableList({});
         setChute("");
+        setGameOver(false);
     }
 
     function compararLetra(letra) {
