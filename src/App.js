@@ -93,6 +93,7 @@ export default function App() {
     }
 
     function chuteTeste() {
+        setLetrasClicadas([]);
         setBotaoDesliga(!botaoDesliga);
         setDisableList(alfabetoDisabled);
         const chuteMaiusculo = chute.toUpperCase();
